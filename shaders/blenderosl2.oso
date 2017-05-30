@@ -1,0 +1,55 @@
+OpenShadingLanguage 1.00
+# Compiled by oslc 1.7.5
+# options: -o C:\Users\claud\AppData\Local\Temp\tmpy9levgyz.oso -IC:\Program Files\Blender Foundation\Blender\2.78\scripts\addons\cycles\shader
+shader node_Pie
+param	int	Slices	4		%read{8,8} %write{2147483647,-1}
+param	float	Angle	0		%read{5,5} %write{2147483647,-1}
+param	float	Noise	0		%read{10,10} %write{2147483647,-1}
+param	float	TurbDepth	0		%read{2147483647,-1} %write{2147483647,-1}
+param	float	TurbSize	0.25		%read{2147483647,-1} %write{2147483647,-1}
+param	point	TextureVector	0 0 0		%read{2,3} %write{0,0} %initexpr
+oparam	color	Texture	0 0 0		%read{2147483647,-1} %write{14,14}
+global	point	P	%read{0,0} %write{2147483647,-1}
+local	float	angle_intern	%read{9,9} %write{1,7}
+const	int	$const1	0		%read{1,2} %write{2147483647,-1}
+temp	float	$tmp1	%read{7,7} %write{4,4}
+temp	float	$tmp2	%read{4,4} %write{2,2}
+const	int	$const2	1		%read{3,3} %write{2147483647,-1}
+temp	float	$tmp3	%read{4,4} %write{3,3}
+const	float	$const3	3.1415925		%read{5,5} %write{2147483647,-1}
+temp	float	$tmp4	%read{6,6} %write{5,5}
+const	float	$const4	180		%read{6,6} %write{2147483647,-1}
+temp	float	$tmp5	%read{7,7} %write{6,6}
+const	float	$const5	0.5		%read{12,13} %write{2147483647,-1}
+temp	float	$tmp6	%read{12,12} %write{11,11}
+temp	float	$tmp7	%read{10,10} %write{9,9}
+temp	float	$tmp8	%read{9,9} %write{8,8}
+temp	float	$tmp9	%read{11,11} %write{10,10}
+temp	float	$tmp10	%read{13,13} %write{12,12}
+temp	float	$tmp11	%read{14,14} %write{13,13}
+code TextureVector
+# C:\\Users\\claud\\Downloads\\blender_cycles_osl-intro_02\\blender_cycles_osl-intro_02\\..\\..\\..\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\shaders\\blenderosl2.osl:10
+# 	output color Texture = 0
+	assign		TextureVector P 	%filename{"C:\\Users\\claud\\Downloads\\blender_cycles_osl-intro_02\\blender_cycles_osl-intro_02\\..\\..\\..\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\shaders\\blenderosl2.osl"} %line{10} %argrw{"wr"}
+code ___main___
+# C:\\Users\\claud\\Downloads\\blender_cycles_osl-intro_02\\blender_cycles_osl-intro_02\\..\\..\\..\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\shaders\\blenderosl2.osl:14
+# 	angle_intern = atan2(TextureVector[0], TextureVector[1]) + Angle * 3.1415926/180.0;
+	assign		angle_intern $const1 	%filename{"C:\\Users\\claud\\Downloads\\blender_cycles_osl-intro_02\\blender_cycles_osl-intro_02\\..\\..\\..\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\shaders\\blenderosl2.osl"} %line{14} %argrw{"wr"}
+# C:\\Users\\claud\\Downloads\\blender_cycles_osl-intro_02\\blender_cycles_osl-intro_02\\..\\..\\..\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\shaders\\blenderosl2.osl:15
+# 	Texture = 0.5 - 0.5 * sin(angle_intern * Slices - Noise);
+	compref		$tmp2 TextureVector $const1 	%line{15} %argrw{"wrr"}
+	compref		$tmp3 TextureVector $const2 	%argrw{"wrr"}
+	atan2		$tmp1 $tmp2 $tmp3 	%argrw{"wrr"}
+	mul		$tmp4 Angle $const3 	%argrw{"wrr"}
+	div		$tmp5 $tmp4 $const4 	%argrw{"wrr"}
+	add		angle_intern $tmp1 $tmp5 	%argrw{"wrr"}
+# C:\\Users\\claud\\Downloads\\blender_cycles_osl-intro_02\\blender_cycles_osl-intro_02\\..\\..\\..\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\shaders\\blenderosl2.osl:16
+# 
+	assign		$tmp8 Slices 	%line{16} %argrw{"wr"}
+	mul		$tmp7 angle_intern $tmp8 	%argrw{"wrr"}
+	sub		$tmp9 $tmp7 Noise 	%argrw{"wrr"}
+	sin		$tmp6 $tmp9 	%argrw{"wr"}
+	mul		$tmp10 $const5 $tmp6 	%argrw{"wrr"}
+	sub		$tmp11 $const5 $tmp10 	%argrw{"wrr"}
+	assign		Texture $tmp11 	%argrw{"wr"}
+	end

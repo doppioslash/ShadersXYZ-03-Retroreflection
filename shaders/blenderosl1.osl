@@ -1,0 +1,12 @@
+#include "stdosl.h"
+
+shader node_advancedAdd(
+	float Fac1 = 0.5,
+	closure color Closure1 = 0,
+	float Fac2 = 0.5,
+	closure color Closure2 = 0,
+	output closure color Closure = 0
+)
+{
+	Closure = Fac1 * Closure1 + Fac2 * Closure2;
+}

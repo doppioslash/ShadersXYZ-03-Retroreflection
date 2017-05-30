@@ -1,0 +1,18 @@
+OpenShadingLanguage 1.00
+# Compiled by oslc 1.7.5
+# options: -o C:\Users\claud\AppData\Local\Temp\tmpbuy5g482.oso -IC:\Program Files\Blender Foundation\Blender\2.78\scripts\addons\cycles\shader
+shader node_advancedAdd
+param	float	Fac1	0.5		%read{0,0} %write{2147483647,-1}
+param	closure color	Closure1			%read{0,0} %write{2147483647,-1}
+param	float	Fac2	0.5		%read{1,1} %write{2147483647,-1}
+param	closure color	Closure2			%read{1,1} %write{2147483647,-1}
+oparam	closure color	Closure			%read{2147483647,-1} %write{2,2}
+temp	closure color	$tmp1	%read{2,2} %write{0,0}
+temp	closure color	$tmp2	%read{2,2} %write{1,1}
+code ___main___
+# C:\\Users\\claud\\Downloads\\blender_cycles_osl-intro_01\\blender_cycles_osl-intro_01\\..\\..\\..\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\shaders\\test.osl:12
+# }
+	mul		$tmp1 Closure1 Fac1 	%filename{"C:\\Users\\claud\\Downloads\\blender_cycles_osl-intro_01\\blender_cycles_osl-intro_01\\..\\..\\..\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\shaders\\test.osl"} %line{12} %argrw{"wrr"}
+	mul		$tmp2 Closure2 Fac2 	%argrw{"wrr"}
+	add		Closure $tmp1 $tmp2 	%argrw{"wrr"}
+	end

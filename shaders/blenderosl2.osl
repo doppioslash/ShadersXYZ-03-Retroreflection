@@ -1,0 +1,17 @@
+#include "stdosl.h"
+
+shader node_Pie(
+	int Slices = 4,
+	float Angle = 0,
+	float Noise = 0,
+	float TurbDepth = 0,
+	float TurbSize = 0.25,
+	point TextureVector = P,
+	output color Texture = 0
+)
+{
+	float angle_intern = 0;
+	angle_intern = atan2(TextureVector[0], TextureVector[1]) + Angle * 3.1415926/180.0;
+	Texture = 0.5 - 0.5 * sin(angle_intern * Slices - Noise);
+
+}
