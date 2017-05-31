@@ -1,0 +1,195 @@
+OpenShadingLanguage 1.00
+# Compiled by oslc 1.7.5
+# options: -o C:\Users\claud\AppData\Local\Temp\tmpg9ie6uem.oso -IC:\Program Files\Blender Foundation\Blender\2.78\scripts\addons\cycles\shader
+shader PyLa
+param	closure color	Base			%read{51,56} %write{0,0} %initexpr
+param	closure color	Layer			%read{49,60} %write{2147483647,-1}
+param	float	Opacity	0.5		%read{40,40} %write{2147483647,-1}
+param	float	depth	2		%read{7,7} %write{2147483647,-1}
+param	float	Fresnel	0.5		%read{41,42} %write{2147483647,-1}
+param	float	IoR	1.5		%read{15,15} %write{2147483647,-1}
+param	float	MaskLayer	1		%read{40,40} %write{2147483647,-1}
+param	float	Secondary_Layer	1		%read{2,57} %write{2147483647,-1}
+oparam	closure color	Layered			%read{2147483647,-1} %write{1,60} %initexpr
+oparam	float	layermix	0.5		%read{2147483647,-1} %write{53,53}
+global	vector	I	%read{9,13} %write{2147483647,-1}
+global	normal	N	%read{0,13} %write{2147483647,-1}
+local	float	___345_c	%read{17,29} %write{14,14}
+local	float	___345_g	%read{19,28} %write{18,21}
+local	float	___345_result	%read{38,38} %write{36,37}
+local	float	___346_A	%read{32,33} %write{24,24}
+local	float	___346_B	%read{34,34} %write{31,31}
+local	float	Optim_Secondary	%read{4,4} %write{2,2}
+local	int	RTdirect	%read{5,5} %write{3,3}
+local	int	Optimise	%read{6,6} %write{5,5}
+local	float	___347_InvDepth	%read{11,39} %write{8,8}
+local	float	___347_incidence	%read{43,43} %write{11,11}
+local	float	___347_fresnelincidence	%read{41,41} %write{39,39}
+local	float	___347_MixLayer	%read{49,53} %write{48,48}
+const	string	$const1	"diffuse"		%read{0,1} %write{2147483647,-1}
+const	string	$const2	"camera"		%read{3,3} %write{2147483647,-1}
+const	float	$const3	0		%read{4,59} %write{2147483647,-1}
+temp	int	$tmp1	%read{5,5} %write{4,4}
+const	float	$const4	1		%read{8,54} %write{2147483647,-1}
+temp	float	$tmp2	%read{8,8} %write{7,7}
+const	float	$const5	0.0099999998		%read{7,7} %write{2147483647,-1}
+temp	float	$tmp3	%read{10,10} %write{9,9}
+temp	float	$tmp4	%read{11,11} %write{10,10}
+temp	float	$tmp5	%read{39,39} %write{38,38}
+const	string	$const6	"fresnel_dielectric"		%read{12,12} %write{2147483647,-1}
+temp	float	$tmp6	%read{14,14} %write{13,13}
+temp	float	$tmp7	%read{16,16} %write{15,15}
+temp	float	$tmp8	%read{18,18} %write{16,16}
+temp	float	$tmp9	%read{18,18} %write{17,17}
+const	int	$const8	0		%read{19,19} %write{2147483647,-1}
+temp	int	$tmp10	%read{20,20} %write{19,19}
+temp	float	$tmp11	%read{24,24} %write{22,22}
+temp	float	$tmp12	%read{24,24} %write{23,23}
+temp	float	$tmp13	%read{26,26} %write{25,25}
+temp	float	$tmp14	%read{27,27} %write{26,26}
+temp	float	$tmp15	%read{31,31} %write{27,27}
+temp	float	$tmp16	%read{29,29} %write{28,28}
+temp	float	$tmp17	%read{30,30} %write{29,29}
+temp	float	$tmp18	%read{31,31} %write{30,30}
+const	float	$const9	0.5		%read{32,32} %write{2147483647,-1}
+temp	float	$tmp19	%read{33,33} %write{32,32}
+temp	float	$tmp20	%read{36,36} %write{33,33}
+temp	float	$tmp21	%read{35,35} %write{34,34}
+temp	float	$tmp22	%read{36,36} %write{35,35}
+temp	float	$tmp23	%read{45,45} %write{40,40}
+temp	float	$tmp24	%read{44,44} %write{41,41}
+temp	float	$tmp25	%read{43,43} %write{42,42}
+temp	float	$tmp26	%read{44,44} %write{43,43}
+temp	float	$tmp27	%read{45,45} %write{44,44}
+temp	float	$tmp28	%read{47,47} %write{45,45}
+const	string	$const10	"clamp"		%read{46,46} %write{2147483647,-1}
+temp	float	$tmp29	%read{48,48} %write{47,47}
+temp	closure color	$tmp30	%read{52,52} %write{49,49}
+temp	float	$tmp31	%read{51,51} %write{50,50}
+temp	closure color	$tmp32	%read{52,52} %write{51,51}
+temp	int	$tmp33	%read{55,55} %write{54,54}
+const	float	$const11	3		%read{57,57} %write{2147483647,-1}
+temp	int	$tmp34	%read{58,58} %write{57,57}
+code Base
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\pyla.osl:113
+# 	closure color Layer = 0.0 ,
+	closure		Base $const1 N 	%filename{"C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\pyla.osl"} %line{113} %argrw{"wrr"}
+code Layered
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\pyla.osl:122
+# 	output float layermix = 0.5
+	closure		Layered $const1 N 	%filename{"C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\pyla.osl"} %line{122} %argrw{"wrr"}
+code ___main___
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\pyla.osl:128
+# 
+	assign		Optim_Secondary Secondary_Layer 	%filename{"C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\pyla.osl"} %line{128} %argrw{"wr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\pyla.osl:130
+# 	
+	raytype		RTdirect $const2 	%line{130} %argrw{"wr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\pyla.osl:132
+# 
+	eq		$tmp1 Optim_Secondary $const3 	%line{132} %argrw{"wrr"}
+	bitor		Optimise RTdirect $tmp1 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\pyla.osl:134
+# 	{
+	if		Optimise 54 61 	%line{134} %argrw{"r"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\pyla.osl:137
+# 		
+	max		$tmp2 depth $const5 	%line{137} %argrw{"wrr"}
+	div		___347_InvDepth $const4 $tmp2 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\pyla.osl:139
+# 		  
+	dot		$tmp3 I N 	%line{139} %argrw{"wrr"}
+	sub		$tmp4 $const4 $tmp3 	%argrw{"wrr"}
+	pow		___347_incidence $tmp4 ___347_InvDepth 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\pyla.osl:141
+# 		
+	functioncall	$const6 39 	%line{141} %argrw{"r"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\pyla.osl:95
+# 	float g = eta * eta - 1 + c * c;
+	dot		$tmp6 I N 	%line{95} %argrw{"wrr"}
+	fabs		___345_c $tmp6 	%argrw{"wr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\pyla.osl:96
+# 	float result;
+	mul		$tmp7 IoR IoR 	%line{96} %argrw{"wrr"}
+	sub		$tmp8 $tmp7 $const4 	%argrw{"wrr"}
+	mul		$tmp9 ___345_c ___345_c 	%argrw{"wrr"}
+	add		___345_g $tmp8 $tmp9 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\pyla.osl:99
+# 		g = sqrt(g);
+	gt		$tmp10 ___345_g $const8 	%line{99} %argrw{"wrr"}
+	if		$tmp10 37 38 	%argrw{"r"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\pyla.osl:100
+# 		float A = (g - c) / (g + c);
+	sqrt		___345_g ___345_g 	%line{100} %argrw{"wr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\pyla.osl:101
+# 		float B = (c * (g + c) - 1) / (c * (g - c) + 1);
+	sub		$tmp11 ___345_g ___345_c 	%line{101} %argrw{"wrr"}
+	add		$tmp12 ___345_g ___345_c 	%argrw{"wrr"}
+	div		___346_A $tmp11 $tmp12 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\pyla.osl:102
+# 		result = 0.5 * A * A * (1 + B * B);
+	add		$tmp13 ___345_g ___345_c 	%line{102} %argrw{"wrr"}
+	mul		$tmp14 ___345_c $tmp13 	%argrw{"wrr"}
+	sub		$tmp15 $tmp14 $const4 	%argrw{"wrr"}
+	sub		$tmp16 ___345_g ___345_c 	%argrw{"wrr"}
+	mul		$tmp17 ___345_c $tmp16 	%argrw{"wrr"}
+	add		$tmp18 $tmp17 $const4 	%argrw{"wrr"}
+	div		___346_B $tmp15 $tmp18 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\pyla.osl:103
+# 	}
+	mul		$tmp19 $const9 ___346_A 	%line{103} %argrw{"wrr"}
+	mul		$tmp20 $tmp19 ___346_A 	%argrw{"wrr"}
+	mul		$tmp21 ___346_B ___346_B 	%argrw{"wrr"}
+	add		$tmp22 $const4 $tmp21 	%argrw{"wrr"}
+	mul		___345_result $tmp20 $tmp22 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\pyla.osl:106
+# 
+	assign		___345_result $const4 	%line{106} %argrw{"wr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\pyla.osl:108
+# }
+	assign		$tmp5 ___345_result 	%line{108} %argrw{"wr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\pyla.osl:141
+# 		
+	pow		___347_fresnelincidence $tmp5 ___347_InvDepth 	%line{141} %argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\pyla.osl:149
+# 												0.0 , 
+	mul		$tmp23 MaskLayer Opacity 	%line{149} %argrw{"wrr"}
+	mul		$tmp24 Fresnel ___347_fresnelincidence 	%argrw{"wrr"}
+	sub		$tmp25 $const4 Fresnel 	%argrw{"wrr"}
+	mul		$tmp26 $tmp25 ___347_incidence 	%argrw{"wrr"}
+	add		$tmp27 $tmp24 $tmp26 	%argrw{"wrr"}
+	mul		$tmp28 $tmp23 $tmp27 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\pyla.osl:152
+# 		// float Optim_Threshold = 0.01 ;
+	functioncall	$const10 49 	%line{152} %argrw{"r"}
+# C:/Program Files\\Blender Foundation\\Blender\\2.78\\scripts\\addons\\cycles\\shader\\stdosl.h:144
+# float  clamp (float x, float minval, float maxval) { return max(min(x,maxval),minval); }
+	min		$tmp29 $tmp28 $const4 	%filename{"C:/Program Files\\Blender Foundation\\Blender\\2.78\\scripts\\addons\\cycles\\shader\\stdosl.h"} %line{144} %argrw{"wrr"}
+	max		___347_MixLayer $tmp29 $const3 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\pyla.osl:159
+#  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+	mul		$tmp30 Layer ___347_MixLayer 	%filename{"C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\pyla.osl"} %line{159} %argrw{"wrr"}
+	sub		$tmp31 $const4 ___347_MixLayer 	%argrw{"wrr"}
+	mul		$tmp32 Base $tmp31 	%argrw{"wrr"}
+	add		Layered $tmp30 $tmp32 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\pyla.osl:163
+#   * 
+	assign		layermix ___347_MixLayer 	%line{163} %argrw{"wr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\pyla.osl:166
+#   * contact me at : pressf9@free.fr
+	eq		$tmp33 Secondary_Layer $const4 	%line{166} %argrw{"wrr"}
+	if		$tmp33 57 61 	%argrw{"r"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\pyla.osl:168
+#   * blog (3D, shaders, photos and more) : http://vadrouillegraphique.blogspot.fr/
+	assign		Layered Base 	%line{168} %argrw{"wr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\pyla.osl:170
+#   * Small Documentation :
+	eq		$tmp34 Secondary_Layer $const11 	%line{170} %argrw{"wrr"}
+	if		$tmp34 60 61 	%argrw{"r"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\pyla.osl:172
+# 	
+	assign		Layered $const3 	%line{172} %argrw{"wr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\pyla.osl:174
+# 
+	assign		Layered Layer 	%line{174} %argrw{"wr"}
+	end

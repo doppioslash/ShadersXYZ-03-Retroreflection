@@ -1,0 +1,19 @@
+#include "stdosl.h"
+
+shader cookTorranceShader
+(
+	float Ka = 1;
+	float Ks = 0.8;
+	float Kd = 0.2;
+	float IOR = 1.3;
+	float roughness = 0.2;
+	color opacity = 1;
+	color specularColor = 1;
+	color diffuseColor = (0.6, 0.6, 0.6);
+	float gaussConstant  = 100;
+)
+{
+
+	Oi = opacity;
+    Ci = diffuseColor * Oi;
+}

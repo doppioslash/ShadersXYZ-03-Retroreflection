@@ -1,0 +1,15 @@
+#include "stdosl.h"
+
+shader basicShading 
+(
+	color baseColor = color(1,0,0),
+	color roughness = color(1,0,0),
+	normal NormalMap = 0, //the input (normal map vector starting "empty")
+	output closure color RetroBSDF = 0
+)
+{
+	//should edit the normal so it comes from a different angle
+	N = normal(NormalMap[0], NormalMap[1], NormalMap[2]); // store X, Y, Z component from NormalMap
+	normal Nrm = normalize(N);
+	RetroBSDF = principled_clearcoat(Nrm);
+}

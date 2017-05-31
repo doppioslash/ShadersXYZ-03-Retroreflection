@@ -1,0 +1,28 @@
+#include "stdosl.h"
+
+shader
+velvet
+( float Ka = 0.05,
+  float Kd = 0.1,
+  float Ks = 0.1,
+  float backscatter = 0.1,
+  float edginess = 10,
+  color sheen = 0.25,
+  float roughness = 0.1
+) 
+{
+        float sqr(float f) { return f*f; }
+        normal Nf = faceforward (normalize(N), I);
+        vector V = -normalize (I);
+        color shiny = 0;
+        illuminance (P, Nf, PI/2) {
+                vector Ln = normalize ( L );
+                float cosine = max ( Ln.V, 0 );
+                shiny += Cl * sheen * pow (cosine, 1.0/roughness) * backscatter;
+                cosine = max ( Nf.V, 0 );
+                float sine = sqrt (1.0-sqr(cosine));
+                shiny += Cl * sheen * pow (sine, edginess) * (Ln . Nf);
+        }
+        Oi = Os;
+        Ci = Os * (Ka*ambient() + Kd*diffuse(Nf)) * Cs + shiny;
+}

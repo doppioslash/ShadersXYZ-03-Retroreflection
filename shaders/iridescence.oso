@@ -1,0 +1,965 @@
+OpenShadingLanguage 1.00
+# Compiled by oslc 1.7.5
+# options: -o C:\Users\claud\AppData\Local\Temp\tmp523_rvhi.oso -IC:\Program Files\Blender Foundation\Blender\2.78\scripts\addons\cycles\shader
+surface irridescence	%meta{string,description,"Thin film coating shader. Use as reflection color for the material, with Fresnel for the material OFF (this texture computes its own Fresnel)"} 
+param	float	thicknessMin	250		%meta{string,description,"Minimum thickness of the film, in nm"}  %read{10,10} %write{2147483647,-1}
+param	float	thicknessMax	400		%meta{string,description,"Maximum thickness of the film, in nm"}  %read{11,11} %write{2147483647,-1}
+param	string	thickness	"test.png"		%meta{string,description,"Texture map (usually noise) that determines the thickness of the film as fraction between the min and max"}  %read{2,2} %write{2147483647,-1}
+param	float	nmedium	1		%meta{string,description,"Refractive index of the outer medium (typically air)"}  %read{15,390} %write{2147483647,-1}
+param	float	nfilm	1.5		%meta{string,description,"Refractive index of the thin film itself"}  %read{15,368} %write{2147483647,-1}
+param	float	ninternal	1		%meta{string,description,"Refractive index of the material below the film"}  %read{19,389} %write{2147483647,-1}
+oparam	color	reflColor	0 0 0		%read{2147483647,-1} %write{397,397}
+global	vector	I	%read{0,0} %write{2147483647,-1}
+global	normal	N	%read{0,0} %write{2147483647,-1}
+global	float	u	%read{2,2} %write{2147483647,-1} %derivs
+global	float	v	%read{2,2} %write{2147483647,-1} %derivs
+local	float	___337_PI	%read{18,366} %write{14,270}
+local	float	___337_d10	%read{23,279} %write{17,274}
+local	float	___337_d12	%read{23,279} %write{21,278}
+local	float	___337_delta	%read{116,372} %write{23,279}
+local	float	___337_sin1	%read{29,289} %write{28,284}
+local	float	___337_cos1	%read{47,370} %write{34,290}
+local	float	___337_sin2	%read{40,300} %write{39,295}
+local	float	___337_cos2	%read{56,389} %write{45,301}
+local	float	___337_alpha_s	%read{118,375} %write{62,318}
+local	float	___337_alpha_p	%read{126,383} %write{79,335}
+local	float	___337_beta_s	%read{117,373} %write{94,350}
+local	float	___337_beta_p	%read{125,381} %write{109,365}
+local	float	___337_phi	%read{120,384} %write{116,372}
+local	float	___337_ts	%read{136,392} %write{124,380}
+local	float	___337_tp	%read{136,392} %write{132,388}
+local	float	___337_beamRatio	%read{137,393} %write{135,391}
+local	float	___337_t	%read{139,395} %write{138,394}
+local	float	cos0	%read{26,390} %write{1,1}
+local	color	thickTex	%read{3,6} %write{2,2}
+local	float	t	%read{9,11} %write{8,8}
+local	float	thick	%read{113,369} %write{12,12}
+local	float	red	%read{397,397} %write{31,139}
+local	float	green	%read{397,397} %write{159,267}
+local	float	blue	%read{397,397} %write{287,395}
+temp	float	$tmp1	%read{1,1} %write{0,0}
+const	int	$const1	0		%read{3,277} %write{2147483647,-1}
+temp	float	$tmp2	%read{5,5} %write{3,3}
+const	int	$const2	1		%read{4,296} %write{2147483647,-1}
+temp	float	$tmp3	%read{5,5} %write{4,4}
+temp	float	$tmp4	%read{7,7} %write{5,5}
+const	int	$const3	2		%read{6,6} %write{2147483647,-1}
+temp	float	$tmp5	%read{7,7} %write{6,6}
+temp	float	$tmp6	%read{8,8} %write{7,7}
+const	float	$const4	3		%read{8,8} %write{2147483647,-1}
+const	float	$const5	1		%read{9,395} %write{2147483647,-1}
+temp	float	$tmp7	%read{10,10} %write{9,9}
+temp	float	$tmp8	%read{12,12} %write{10,10}
+temp	float	$tmp9	%read{12,12} %write{11,11}
+const	float	$const7	650		%read{111,111} %write{2147483647,-1}
+const	string	$const8	"thinFilmReflectance"		%read{13,269} %write{2147483647,-1}
+const	float	$const9	3.1415927		%read{14,270} %write{2147483647,-1}
+temp	int	$tmp10	%read{16,16} %write{15,15}
+temp	int	$tmp11	%read{20,20} %write{19,19}
+temp	float	$tmp12	%read{28,28} %write{25,25}
+temp	float	$tmp13	%read{25,25} %write{24,24}
+const	float	$const10	2		%read{25,394} %write{2147483647,-1}
+temp	float	$tmp14	%read{27,27} %write{26,26}
+temp	float	$tmp15	%read{28,28} %write{27,27}
+temp	int	$tmp16	%read{30,30} %write{29,29}
+temp	float	$tmp17	%read{34,34} %write{33,33}
+temp	float	$tmp18	%read{39,39} %write{36,36}
+temp	float	$tmp19	%read{36,36} %write{35,35}
+temp	float	$tmp20	%read{38,38} %write{37,37}
+temp	float	$tmp21	%read{39,39} %write{38,38}
+temp	int	$tmp22	%read{41,41} %write{40,40}
+temp	float	$tmp23	%read{45,45} %write{44,44}
+temp	float	$tmp24	%read{62,62} %write{53,53}
+const	string	$const11	"rs"		%read{46,310} %write{2147483647,-1}
+temp	float	$tmp25	%read{49,49} %write{47,47}
+temp	float	$tmp26	%read{49,49} %write{48,48}
+temp	float	$tmp27	%read{53,53} %write{49,49}
+temp	float	$tmp28	%read{52,52} %write{50,50}
+temp	float	$tmp29	%read{52,52} %write{51,51}
+temp	float	$tmp30	%read{53,53} %write{52,52}
+temp	float	$tmp31	%read{62,62} %write{61,61}
+temp	float	$tmp32	%read{57,57} %write{55,55}
+temp	float	$tmp33	%read{57,57} %write{56,56}
+temp	float	$tmp34	%read{61,61} %write{57,57}
+temp	float	$tmp35	%read{60,60} %write{58,58}
+temp	float	$tmp36	%read{60,60} %write{59,59}
+temp	float	$tmp37	%read{61,61} %write{60,60}
+temp	float	$tmp38	%read{79,79} %write{70,70}
+const	string	$const12	"rp"		%read{63,327} %write{2147483647,-1}
+temp	float	$tmp39	%read{66,66} %write{64,64}
+temp	float	$tmp40	%read{66,66} %write{65,65}
+temp	float	$tmp41	%read{70,70} %write{66,66}
+temp	float	$tmp42	%read{69,69} %write{67,67}
+temp	float	$tmp43	%read{69,69} %write{68,68}
+temp	float	$tmp44	%read{70,70} %write{69,69}
+temp	float	$tmp45	%read{79,79} %write{78,78}
+temp	float	$tmp46	%read{74,74} %write{72,72}
+temp	float	$tmp47	%read{74,74} %write{73,73}
+temp	float	$tmp48	%read{78,78} %write{74,74}
+temp	float	$tmp49	%read{77,77} %write{75,75}
+temp	float	$tmp50	%read{77,77} %write{76,76}
+temp	float	$tmp51	%read{78,78} %write{77,77}
+temp	float	$tmp52	%read{94,94} %write{86,86}
+const	string	$const13	"ts"		%read{80,343} %write{2147483647,-1}
+temp	float	$tmp53	%read{82,82} %write{81,81}
+temp	float	$tmp54	%read{86,86} %write{82,82}
+temp	float	$tmp55	%read{85,85} %write{83,83}
+temp	float	$tmp56	%read{85,85} %write{84,84}
+temp	float	$tmp57	%read{86,86} %write{85,85}
+temp	float	$tmp58	%read{94,94} %write{93,93}
+temp	float	$tmp59	%read{89,89} %write{88,88}
+temp	float	$tmp60	%read{93,93} %write{89,89}
+temp	float	$tmp61	%read{92,92} %write{90,90}
+temp	float	$tmp62	%read{92,92} %write{91,91}
+temp	float	$tmp63	%read{93,93} %write{92,92}
+temp	float	$tmp64	%read{109,109} %write{101,101}
+const	string	$const14	"tp"		%read{95,358} %write{2147483647,-1}
+temp	float	$tmp65	%read{97,97} %write{96,96}
+temp	float	$tmp66	%read{101,101} %write{97,97}
+temp	float	$tmp67	%read{100,100} %write{98,98}
+temp	float	$tmp68	%read{100,100} %write{99,99}
+temp	float	$tmp69	%read{101,101} %write{100,100}
+temp	float	$tmp70	%read{109,109} %write{108,108}
+temp	float	$tmp71	%read{104,104} %write{103,103}
+temp	float	$tmp72	%read{108,108} %write{104,104}
+temp	float	$tmp73	%read{107,107} %write{105,105}
+temp	float	$tmp74	%read{107,107} %write{106,106}
+temp	float	$tmp75	%read{108,108} %write{107,107}
+temp	float	$tmp76	%read{111,111} %write{110,110}
+temp	float	$tmp77	%read{115,115} %write{111,111}
+temp	float	$tmp78	%read{113,113} %write{112,112}
+temp	float	$tmp79	%read{114,114} %write{113,113}
+temp	float	$tmp80	%read{115,115} %write{114,114}
+temp	float	$tmp81	%read{116,116} %write{115,115}
+temp	float	$tmp82	%read{124,124} %write{117,117}
+temp	float	$tmp83	%read{122,122} %write{118,118}
+temp	float	$tmp84	%read{121,121} %write{119,119}
+temp	float	$tmp85	%read{121,121} %write{120,120}
+temp	float	$tmp86	%read{122,122} %write{121,121}
+temp	float	$tmp87	%read{123,123} %write{122,122}
+temp	float	$tmp88	%read{124,124} %write{123,123}
+temp	float	$tmp89	%read{132,132} %write{125,125}
+temp	float	$tmp90	%read{130,130} %write{126,126}
+temp	float	$tmp91	%read{129,129} %write{127,127}
+temp	float	$tmp92	%read{129,129} %write{128,128}
+temp	float	$tmp93	%read{130,130} %write{129,129}
+temp	float	$tmp94	%read{131,131} %write{130,130}
+temp	float	$tmp95	%read{132,132} %write{131,131}
+temp	float	$tmp96	%read{135,135} %write{133,133}
+temp	float	$tmp97	%read{135,135} %write{134,134}
+temp	float	$tmp98	%read{137,137} %write{136,136}
+temp	float	$tmp99	%read{138,138} %write{137,137}
+const	float	$const16	510		%read{239,239} %write{2147483647,-1}
+temp	int	$tmp100	%read{144,144} %write{143,143}
+temp	int	$tmp101	%read{148,148} %write{147,147}
+temp	float	$tmp102	%read{156,156} %write{153,153}
+temp	float	$tmp103	%read{153,153} %write{152,152}
+temp	float	$tmp104	%read{155,155} %write{154,154}
+temp	float	$tmp105	%read{156,156} %write{155,155}
+temp	int	$tmp106	%read{158,158} %write{157,157}
+temp	float	$tmp107	%read{162,162} %write{161,161}
+temp	float	$tmp108	%read{167,167} %write{164,164}
+temp	float	$tmp109	%read{164,164} %write{163,163}
+temp	float	$tmp110	%read{166,166} %write{165,165}
+temp	float	$tmp111	%read{167,167} %write{166,166}
+temp	int	$tmp112	%read{169,169} %write{168,168}
+temp	float	$tmp113	%read{173,173} %write{172,172}
+temp	float	$tmp114	%read{190,190} %write{181,181}
+temp	float	$tmp115	%read{177,177} %write{175,175}
+temp	float	$tmp116	%read{177,177} %write{176,176}
+temp	float	$tmp117	%read{181,181} %write{177,177}
+temp	float	$tmp118	%read{180,180} %write{178,178}
+temp	float	$tmp119	%read{180,180} %write{179,179}
+temp	float	$tmp120	%read{181,181} %write{180,180}
+temp	float	$tmp121	%read{190,190} %write{189,189}
+temp	float	$tmp122	%read{185,185} %write{183,183}
+temp	float	$tmp123	%read{185,185} %write{184,184}
+temp	float	$tmp124	%read{189,189} %write{185,185}
+temp	float	$tmp125	%read{188,188} %write{186,186}
+temp	float	$tmp126	%read{188,188} %write{187,187}
+temp	float	$tmp127	%read{189,189} %write{188,188}
+temp	float	$tmp128	%read{207,207} %write{198,198}
+temp	float	$tmp129	%read{194,194} %write{192,192}
+temp	float	$tmp130	%read{194,194} %write{193,193}
+temp	float	$tmp131	%read{198,198} %write{194,194}
+temp	float	$tmp132	%read{197,197} %write{195,195}
+temp	float	$tmp133	%read{197,197} %write{196,196}
+temp	float	$tmp134	%read{198,198} %write{197,197}
+temp	float	$tmp135	%read{207,207} %write{206,206}
+temp	float	$tmp136	%read{202,202} %write{200,200}
+temp	float	$tmp137	%read{202,202} %write{201,201}
+temp	float	$tmp138	%read{206,206} %write{202,202}
+temp	float	$tmp139	%read{205,205} %write{203,203}
+temp	float	$tmp140	%read{205,205} %write{204,204}
+temp	float	$tmp141	%read{206,206} %write{205,205}
+temp	float	$tmp142	%read{222,222} %write{214,214}
+temp	float	$tmp143	%read{210,210} %write{209,209}
+temp	float	$tmp144	%read{214,214} %write{210,210}
+temp	float	$tmp145	%read{213,213} %write{211,211}
+temp	float	$tmp146	%read{213,213} %write{212,212}
+temp	float	$tmp147	%read{214,214} %write{213,213}
+temp	float	$tmp148	%read{222,222} %write{221,221}
+temp	float	$tmp149	%read{217,217} %write{216,216}
+temp	float	$tmp150	%read{221,221} %write{217,217}
+temp	float	$tmp151	%read{220,220} %write{218,218}
+temp	float	$tmp152	%read{220,220} %write{219,219}
+temp	float	$tmp153	%read{221,221} %write{220,220}
+temp	float	$tmp154	%read{237,237} %write{229,229}
+temp	float	$tmp155	%read{225,225} %write{224,224}
+temp	float	$tmp156	%read{229,229} %write{225,225}
+temp	float	$tmp157	%read{228,228} %write{226,226}
+temp	float	$tmp158	%read{228,228} %write{227,227}
+temp	float	$tmp159	%read{229,229} %write{228,228}
+temp	float	$tmp160	%read{237,237} %write{236,236}
+temp	float	$tmp161	%read{232,232} %write{231,231}
+temp	float	$tmp162	%read{236,236} %write{232,232}
+temp	float	$tmp163	%read{235,235} %write{233,233}
+temp	float	$tmp164	%read{235,235} %write{234,234}
+temp	float	$tmp165	%read{236,236} %write{235,235}
+temp	float	$tmp166	%read{239,239} %write{238,238}
+temp	float	$tmp167	%read{243,243} %write{239,239}
+temp	float	$tmp168	%read{241,241} %write{240,240}
+temp	float	$tmp169	%read{242,242} %write{241,241}
+temp	float	$tmp170	%read{243,243} %write{242,242}
+temp	float	$tmp171	%read{244,244} %write{243,243}
+temp	float	$tmp172	%read{252,252} %write{245,245}
+temp	float	$tmp173	%read{250,250} %write{246,246}
+temp	float	$tmp174	%read{249,249} %write{247,247}
+temp	float	$tmp175	%read{249,249} %write{248,248}
+temp	float	$tmp176	%read{250,250} %write{249,249}
+temp	float	$tmp177	%read{251,251} %write{250,250}
+temp	float	$tmp178	%read{252,252} %write{251,251}
+temp	float	$tmp179	%read{260,260} %write{253,253}
+temp	float	$tmp180	%read{258,258} %write{254,254}
+temp	float	$tmp181	%read{257,257} %write{255,255}
+temp	float	$tmp182	%read{257,257} %write{256,256}
+temp	float	$tmp183	%read{258,258} %write{257,257}
+temp	float	$tmp184	%read{259,259} %write{258,258}
+temp	float	$tmp185	%read{260,260} %write{259,259}
+temp	float	$tmp186	%read{263,263} %write{261,261}
+temp	float	$tmp187	%read{263,263} %write{262,262}
+temp	float	$tmp188	%read{265,265} %write{264,264}
+temp	float	$tmp189	%read{266,266} %write{265,265}
+const	float	$const18	475		%read{367,367} %write{2147483647,-1}
+temp	int	$tmp190	%read{272,272} %write{271,271}
+temp	int	$tmp191	%read{276,276} %write{275,275}
+temp	float	$tmp192	%read{284,284} %write{281,281}
+temp	float	$tmp193	%read{281,281} %write{280,280}
+temp	float	$tmp194	%read{283,283} %write{282,282}
+temp	float	$tmp195	%read{284,284} %write{283,283}
+temp	int	$tmp196	%read{286,286} %write{285,285}
+temp	float	$tmp197	%read{290,290} %write{289,289}
+temp	float	$tmp198	%read{295,295} %write{292,292}
+temp	float	$tmp199	%read{292,292} %write{291,291}
+temp	float	$tmp200	%read{294,294} %write{293,293}
+temp	float	$tmp201	%read{295,295} %write{294,294}
+temp	int	$tmp202	%read{297,297} %write{296,296}
+temp	float	$tmp203	%read{301,301} %write{300,300}
+temp	float	$tmp204	%read{318,318} %write{309,309}
+temp	float	$tmp205	%read{305,305} %write{303,303}
+temp	float	$tmp206	%read{305,305} %write{304,304}
+temp	float	$tmp207	%read{309,309} %write{305,305}
+temp	float	$tmp208	%read{308,308} %write{306,306}
+temp	float	$tmp209	%read{308,308} %write{307,307}
+temp	float	$tmp210	%read{309,309} %write{308,308}
+temp	float	$tmp211	%read{318,318} %write{317,317}
+temp	float	$tmp212	%read{313,313} %write{311,311}
+temp	float	$tmp213	%read{313,313} %write{312,312}
+temp	float	$tmp214	%read{317,317} %write{313,313}
+temp	float	$tmp215	%read{316,316} %write{314,314}
+temp	float	$tmp216	%read{316,316} %write{315,315}
+temp	float	$tmp217	%read{317,317} %write{316,316}
+temp	float	$tmp218	%read{335,335} %write{326,326}
+temp	float	$tmp219	%read{322,322} %write{320,320}
+temp	float	$tmp220	%read{322,322} %write{321,321}
+temp	float	$tmp221	%read{326,326} %write{322,322}
+temp	float	$tmp222	%read{325,325} %write{323,323}
+temp	float	$tmp223	%read{325,325} %write{324,324}
+temp	float	$tmp224	%read{326,326} %write{325,325}
+temp	float	$tmp225	%read{335,335} %write{334,334}
+temp	float	$tmp226	%read{330,330} %write{328,328}
+temp	float	$tmp227	%read{330,330} %write{329,329}
+temp	float	$tmp228	%read{334,334} %write{330,330}
+temp	float	$tmp229	%read{333,333} %write{331,331}
+temp	float	$tmp230	%read{333,333} %write{332,332}
+temp	float	$tmp231	%read{334,334} %write{333,333}
+temp	float	$tmp232	%read{350,350} %write{342,342}
+temp	float	$tmp233	%read{338,338} %write{337,337}
+temp	float	$tmp234	%read{342,342} %write{338,338}
+temp	float	$tmp235	%read{341,341} %write{339,339}
+temp	float	$tmp236	%read{341,341} %write{340,340}
+temp	float	$tmp237	%read{342,342} %write{341,341}
+temp	float	$tmp238	%read{350,350} %write{349,349}
+temp	float	$tmp239	%read{345,345} %write{344,344}
+temp	float	$tmp240	%read{349,349} %write{345,345}
+temp	float	$tmp241	%read{348,348} %write{346,346}
+temp	float	$tmp242	%read{348,348} %write{347,347}
+temp	float	$tmp243	%read{349,349} %write{348,348}
+temp	float	$tmp244	%read{365,365} %write{357,357}
+temp	float	$tmp245	%read{353,353} %write{352,352}
+temp	float	$tmp246	%read{357,357} %write{353,353}
+temp	float	$tmp247	%read{356,356} %write{354,354}
+temp	float	$tmp248	%read{356,356} %write{355,355}
+temp	float	$tmp249	%read{357,357} %write{356,356}
+temp	float	$tmp250	%read{365,365} %write{364,364}
+temp	float	$tmp251	%read{360,360} %write{359,359}
+temp	float	$tmp252	%read{364,364} %write{360,360}
+temp	float	$tmp253	%read{363,363} %write{361,361}
+temp	float	$tmp254	%read{363,363} %write{362,362}
+temp	float	$tmp255	%read{364,364} %write{363,363}
+temp	float	$tmp256	%read{367,367} %write{366,366}
+temp	float	$tmp257	%read{371,371} %write{367,367}
+temp	float	$tmp258	%read{369,369} %write{368,368}
+temp	float	$tmp259	%read{370,370} %write{369,369}
+temp	float	$tmp260	%read{371,371} %write{370,370}
+temp	float	$tmp261	%read{372,372} %write{371,371}
+temp	float	$tmp262	%read{380,380} %write{373,373}
+temp	float	$tmp263	%read{378,378} %write{374,374}
+temp	float	$tmp264	%read{377,377} %write{375,375}
+temp	float	$tmp265	%read{377,377} %write{376,376}
+temp	float	$tmp266	%read{378,378} %write{377,377}
+temp	float	$tmp267	%read{379,379} %write{378,378}
+temp	float	$tmp268	%read{380,380} %write{379,379}
+temp	float	$tmp269	%read{388,388} %write{381,381}
+temp	float	$tmp270	%read{386,386} %write{382,382}
+temp	float	$tmp271	%read{385,385} %write{383,383}
+temp	float	$tmp272	%read{385,385} %write{384,384}
+temp	float	$tmp273	%read{386,386} %write{385,385}
+temp	float	$tmp274	%read{387,387} %write{386,386}
+temp	float	$tmp275	%read{388,388} %write{387,387}
+temp	float	$tmp276	%read{391,391} %write{389,389}
+temp	float	$tmp277	%read{391,391} %write{390,390}
+temp	float	$tmp278	%read{393,393} %write{392,392}
+temp	float	$tmp279	%read{394,394} %write{393,393}
+code ___main___
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:81
+#   
+	dot		$tmp1 I N 	%filename{"C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl"} %line{81} %argrw{"wrr"}
+	abs		cos0 $tmp1 	%argrw{"wr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:83
+#  float t=(thickTex[0]+thickTex[1]+thickTex[2])/3.0;
+	texture		thickTex thickness u v 	%line{83} %argrw{"wrrr"} %argderivs{2,3}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:84
+#  float thick=thicknessMin*(1.0-t)+thicknessMax*t;
+	compref		$tmp2 thickTex $const1 	%line{84} %argrw{"wrr"}
+	compref		$tmp3 thickTex $const2 	%argrw{"wrr"}
+	add		$tmp4 $tmp2 $tmp3 	%argrw{"wrr"}
+	compref		$tmp5 thickTex $const3 	%argrw{"wrr"}
+	add		$tmp6 $tmp4 $tmp5 	%argrw{"wrr"}
+	div		t $tmp6 $const4 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:85
+#   
+	sub		$tmp7 $const5 t 	%line{85} %argrw{"wrr"}
+	mul		$tmp8 thicknessMin $tmp7 	%argrw{"wrr"}
+	mul		$tmp9 thicknessMax t 	%argrw{"wrr"}
+	add		thick $tmp8 $tmp9 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:87
+#  float green=thinFilmReflectance(cos0, 510, thick, nmedium, nfilm, ninternal);
+	functioncall	$const8 141 	%line{87} %argrw{"r"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:26
+#      
+	assign		___337_PI $const9 	%line{26} %argrw{"wr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:29
+#     float d12 = (n1 > n2) ? 0 : PI;
+	gt		$tmp10 nfilm nmedium 	%line{29} %argrw{"wrr"}
+	if		$tmp10 18 19 	%argrw{"r"}
+	assign		___337_d10 $const1 	%argrw{"wr"}
+	assign		___337_d10 ___337_PI 	%argrw{"wr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:30
+#     float delta = d10 + d12;
+	gt		$tmp11 nfilm ninternal 	%line{30} %argrw{"wrr"}
+	if		$tmp11 22 23 	%argrw{"r"}
+	assign		___337_d12 $const1 	%argrw{"wr"}
+	assign		___337_d12 ___337_PI 	%argrw{"wr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:31
+#      
+	add		___337_delta ___337_d10 ___337_d12 	%line{31} %argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:34
+#     if (sin1 > 1) return 1.0; // total internal reflection
+	div		$tmp13 nmedium nfilm 	%line{34} %argrw{"wrr"}
+	pow		$tmp12 $tmp13 $const10 	%argrw{"wrr"}
+	pow		$tmp14 cos0 $const10 	%argrw{"wrr"}
+	sub		$tmp15 $const5 $tmp14 	%argrw{"wrr"}
+	mul		___337_sin1 $tmp12 $tmp15 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:35
+#     float cos1 = sqrt(1 - sin1);
+	gt		$tmp16 ___337_sin1 $const2 	%line{35} %argrw{"wrr"}
+	if		$tmp16 33 33 	%argrw{"r"}
+	assign		red $const5 	%argrw{"wr"}
+	return
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:36
+#      
+	sub		$tmp17 $const5 ___337_sin1 	%line{36} %argrw{"wrr"}
+	sqrt		___337_cos1 $tmp17 	%argrw{"wr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:40
+#     if (sin2 > 1) return 1.0; // total internal reflection
+	div		$tmp19 nmedium ninternal 	%line{40} %argrw{"wrr"}
+	pow		$tmp18 $tmp19 $const10 	%argrw{"wrr"}
+	pow		$tmp20 cos0 $const10 	%argrw{"wrr"}
+	sub		$tmp21 $const5 $tmp20 	%argrw{"wrr"}
+	mul		___337_sin2 $tmp18 $tmp21 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:41
+#     float cos2 = sqrt(1 - sin2);
+	gt		$tmp22 ___337_sin2 $const2 	%line{41} %argrw{"wrr"}
+	if		$tmp22 44 44 	%argrw{"r"}
+	assign		red $const5 	%argrw{"wr"}
+	return
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:42
+#      
+	sub		$tmp23 $const5 ___337_sin2 	%line{42} %argrw{"wrr"}
+	sqrt		___337_cos2 $tmp23 	%argrw{"wr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:45
+#     float alpha_p = rp(n1, n0, cos1, cos0) * rp(n1, n2, cos1, cos2); // rho_10 * rho_12 (p-polarized)
+	functioncall	$const11 54 	%line{45} %argrw{"r"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:4
+# }
+	mul		$tmp25 nfilm ___337_cos1 	%line{4} %argrw{"wrr"}
+	mul		$tmp26 nmedium cos0 	%argrw{"wrr"}
+	sub		$tmp27 $tmp25 $tmp26 	%argrw{"wrr"}
+	mul		$tmp28 nfilm ___337_cos1 	%argrw{"wrr"}
+	mul		$tmp29 nmedium cos0 	%argrw{"wrr"}
+	add		$tmp30 $tmp28 $tmp29 	%argrw{"wrr"}
+	div		$tmp24 $tmp27 $tmp30 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:45
+#     float alpha_p = rp(n1, n0, cos1, cos0) * rp(n1, n2, cos1, cos2); // rho_10 * rho_12 (p-polarized)
+	functioncall	$const11 62 	%line{45} %argrw{"r"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:4
+# }
+	mul		$tmp32 nfilm ___337_cos1 	%line{4} %argrw{"wrr"}
+	mul		$tmp33 ninternal ___337_cos2 	%argrw{"wrr"}
+	sub		$tmp34 $tmp32 $tmp33 	%argrw{"wrr"}
+	mul		$tmp35 nfilm ___337_cos1 	%argrw{"wrr"}
+	mul		$tmp36 ninternal ___337_cos2 	%argrw{"wrr"}
+	add		$tmp37 $tmp35 $tmp36 	%argrw{"wrr"}
+	div		$tmp31 $tmp34 $tmp37 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:45
+#     float alpha_p = rp(n1, n0, cos1, cos0) * rp(n1, n2, cos1, cos2); // rho_10 * rho_12 (p-polarized)
+	mul		___337_alpha_s $tmp24 $tmp31 	%line{45} %argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:46
+#      
+	functioncall	$const12 71 	%line{46} %argrw{"r"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:9
+# }
+	mul		$tmp39 nmedium ___337_cos1 	%line{9} %argrw{"wrr"}
+	mul		$tmp40 nfilm cos0 	%argrw{"wrr"}
+	sub		$tmp41 $tmp39 $tmp40 	%argrw{"wrr"}
+	mul		$tmp42 nfilm cos0 	%argrw{"wrr"}
+	mul		$tmp43 nmedium ___337_cos1 	%argrw{"wrr"}
+	add		$tmp44 $tmp42 $tmp43 	%argrw{"wrr"}
+	div		$tmp38 $tmp41 $tmp44 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:46
+#      
+	functioncall	$const12 79 	%line{46} %argrw{"r"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:9
+# }
+	mul		$tmp46 ninternal ___337_cos1 	%line{9} %argrw{"wrr"}
+	mul		$tmp47 nfilm ___337_cos2 	%argrw{"wrr"}
+	sub		$tmp48 $tmp46 $tmp47 	%argrw{"wrr"}
+	mul		$tmp49 nfilm ___337_cos2 	%argrw{"wrr"}
+	mul		$tmp50 ninternal ___337_cos1 	%argrw{"wrr"}
+	add		$tmp51 $tmp49 $tmp50 	%argrw{"wrr"}
+	div		$tmp45 $tmp48 $tmp51 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:46
+#      
+	mul		___337_alpha_p $tmp38 $tmp45 	%line{46} %argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:48
+#     float beta_p = tp(n0, n1, cos0, cos1) * tp(n1, n2, cos1, cos2); // tau_01 * tau_12 (p-polarized)
+	functioncall	$const13 87 	%line{48} %argrw{"r"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:14
+# }
+	mul		$tmp53 $const10 nmedium 	%line{14} %argrw{"wrr"}
+	mul		$tmp54 $tmp53 cos0 	%argrw{"wrr"}
+	mul		$tmp55 nmedium cos0 	%argrw{"wrr"}
+	mul		$tmp56 nfilm ___337_cos1 	%argrw{"wrr"}
+	add		$tmp57 $tmp55 $tmp56 	%argrw{"wrr"}
+	div		$tmp52 $tmp54 $tmp57 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:48
+#     float beta_p = tp(n0, n1, cos0, cos1) * tp(n1, n2, cos1, cos2); // tau_01 * tau_12 (p-polarized)
+	functioncall	$const13 94 	%line{48} %argrw{"r"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:14
+# }
+	mul		$tmp59 $const10 nfilm 	%line{14} %argrw{"wrr"}
+	mul		$tmp60 $tmp59 ___337_cos1 	%argrw{"wrr"}
+	mul		$tmp61 nfilm ___337_cos1 	%argrw{"wrr"}
+	mul		$tmp62 ninternal ___337_cos2 	%argrw{"wrr"}
+	add		$tmp63 $tmp61 $tmp62 	%argrw{"wrr"}
+	div		$tmp58 $tmp60 $tmp63 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:48
+#     float beta_p = tp(n0, n1, cos0, cos1) * tp(n1, n2, cos1, cos2); // tau_01 * tau_12 (p-polarized)
+	mul		___337_beta_s $tmp52 $tmp58 	%line{48} %argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:49
+#          
+	functioncall	$const14 102 	%line{49} %argrw{"r"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:19
+# }
+	mul		$tmp65 $const10 nmedium 	%line{19} %argrw{"wrr"}
+	mul		$tmp66 $tmp65 cos0 	%argrw{"wrr"}
+	mul		$tmp67 nmedium ___337_cos1 	%argrw{"wrr"}
+	mul		$tmp68 nfilm cos0 	%argrw{"wrr"}
+	add		$tmp69 $tmp67 $tmp68 	%argrw{"wrr"}
+	div		$tmp64 $tmp66 $tmp69 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:49
+#          
+	functioncall	$const14 109 	%line{49} %argrw{"r"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:19
+# }
+	mul		$tmp71 $const10 nfilm 	%line{19} %argrw{"wrr"}
+	mul		$tmp72 $tmp71 ___337_cos1 	%argrw{"wrr"}
+	mul		$tmp73 nfilm ___337_cos2 	%argrw{"wrr"}
+	mul		$tmp74 ninternal ___337_cos1 	%argrw{"wrr"}
+	add		$tmp75 $tmp73 $tmp74 	%argrw{"wrr"}
+	div		$tmp70 $tmp72 $tmp75 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:49
+#          
+	mul		___337_beta_p $tmp64 $tmp70 	%line{49} %argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:52
+#          
+	mul		$tmp76 $const10 ___337_PI 	%line{52} %argrw{"wrr"}
+	div		$tmp77 $tmp76 $const7 	%argrw{"wrr"}
+	mul		$tmp78 $const10 nfilm 	%argrw{"wrr"}
+	mul		$tmp79 $tmp78 thick 	%argrw{"wrr"}
+	mul		$tmp80 $tmp79 ___337_cos1 	%argrw{"wrr"}
+	mul		$tmp81 $tmp77 $tmp80 	%argrw{"wrr"}
+	add		___337_phi $tmp81 ___337_delta 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:55
+#     float tp = pow(beta_p, 2) / (pow(alpha_p, 2) - 2 * alpha_p * cos(phi) + 1);
+	pow		$tmp82 ___337_beta_s $const10 	%line{55} %argrw{"wrr"}
+	pow		$tmp83 ___337_alpha_s $const10 	%argrw{"wrr"}
+	mul		$tmp84 $const10 ___337_alpha_s 	%argrw{"wrr"}
+	cos		$tmp85 ___337_phi 	%argrw{"wr"}
+	mul		$tmp86 $tmp84 $tmp85 	%argrw{"wrr"}
+	sub		$tmp87 $tmp83 $tmp86 	%argrw{"wrr"}
+	add		$tmp88 $tmp87 $const5 	%argrw{"wrr"}
+	div		___337_ts $tmp82 $tmp88 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:56
+#      
+	pow		$tmp89 ___337_beta_p $const10 	%line{56} %argrw{"wrr"}
+	pow		$tmp90 ___337_alpha_p $const10 	%argrw{"wrr"}
+	mul		$tmp91 $const10 ___337_alpha_p 	%argrw{"wrr"}
+	cos		$tmp92 ___337_phi 	%argrw{"wr"}
+	mul		$tmp93 $tmp91 $tmp92 	%argrw{"wrr"}
+	sub		$tmp94 $tmp90 $tmp93 	%argrw{"wrr"}
+	add		$tmp95 $tmp94 $const5 	%argrw{"wrr"}
+	div		___337_tp $tmp89 $tmp95 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:59
+#      
+	mul		$tmp96 ninternal ___337_cos2 	%line{59} %argrw{"wrr"}
+	mul		$tmp97 nmedium cos0 	%argrw{"wrr"}
+	div		___337_beamRatio $tmp96 $tmp97 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:63
+#      
+	add		$tmp98 ___337_ts ___337_tp 	%line{63} %argrw{"wrr"}
+	mul		$tmp99 ___337_beamRatio $tmp98 	%argrw{"wrr"}
+	div		___337_t $tmp99 $const10 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:66
+# }
+	sub		red $const5 ___337_t 	%line{66} %argrw{"wrr"}
+	return
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:88
+#  float blue=thinFilmReflectance(cos0, 475, thick, nmedium, nfilm, ninternal);
+	functioncall	$const8 269 	%line{88} %argrw{"r"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:26
+#      
+	assign		___337_PI $const9 	%line{26} %argrw{"wr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:29
+#     float d12 = (n1 > n2) ? 0 : PI;
+	gt		$tmp100 nfilm nmedium 	%line{29} %argrw{"wrr"}
+	if		$tmp100 146 147 	%argrw{"r"}
+	assign		___337_d10 $const1 	%argrw{"wr"}
+	assign		___337_d10 ___337_PI 	%argrw{"wr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:30
+#     float delta = d10 + d12;
+	gt		$tmp101 nfilm ninternal 	%line{30} %argrw{"wrr"}
+	if		$tmp101 150 151 	%argrw{"r"}
+	assign		___337_d12 $const1 	%argrw{"wr"}
+	assign		___337_d12 ___337_PI 	%argrw{"wr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:31
+#      
+	add		___337_delta ___337_d10 ___337_d12 	%line{31} %argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:34
+#     if (sin1 > 1) return 1.0; // total internal reflection
+	div		$tmp103 nmedium nfilm 	%line{34} %argrw{"wrr"}
+	pow		$tmp102 $tmp103 $const10 	%argrw{"wrr"}
+	pow		$tmp104 cos0 $const10 	%argrw{"wrr"}
+	sub		$tmp105 $const5 $tmp104 	%argrw{"wrr"}
+	mul		___337_sin1 $tmp102 $tmp105 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:35
+#     float cos1 = sqrt(1 - sin1);
+	gt		$tmp106 ___337_sin1 $const2 	%line{35} %argrw{"wrr"}
+	if		$tmp106 161 161 	%argrw{"r"}
+	assign		green $const5 	%argrw{"wr"}
+	return
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:36
+#      
+	sub		$tmp107 $const5 ___337_sin1 	%line{36} %argrw{"wrr"}
+	sqrt		___337_cos1 $tmp107 	%argrw{"wr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:40
+#     if (sin2 > 1) return 1.0; // total internal reflection
+	div		$tmp109 nmedium ninternal 	%line{40} %argrw{"wrr"}
+	pow		$tmp108 $tmp109 $const10 	%argrw{"wrr"}
+	pow		$tmp110 cos0 $const10 	%argrw{"wrr"}
+	sub		$tmp111 $const5 $tmp110 	%argrw{"wrr"}
+	mul		___337_sin2 $tmp108 $tmp111 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:41
+#     float cos2 = sqrt(1 - sin2);
+	gt		$tmp112 ___337_sin2 $const2 	%line{41} %argrw{"wrr"}
+	if		$tmp112 172 172 	%argrw{"r"}
+	assign		green $const5 	%argrw{"wr"}
+	return
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:42
+#      
+	sub		$tmp113 $const5 ___337_sin2 	%line{42} %argrw{"wrr"}
+	sqrt		___337_cos2 $tmp113 	%argrw{"wr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:45
+#     float alpha_p = rp(n1, n0, cos1, cos0) * rp(n1, n2, cos1, cos2); // rho_10 * rho_12 (p-polarized)
+	functioncall	$const11 182 	%line{45} %argrw{"r"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:4
+# }
+	mul		$tmp115 nfilm ___337_cos1 	%line{4} %argrw{"wrr"}
+	mul		$tmp116 nmedium cos0 	%argrw{"wrr"}
+	sub		$tmp117 $tmp115 $tmp116 	%argrw{"wrr"}
+	mul		$tmp118 nfilm ___337_cos1 	%argrw{"wrr"}
+	mul		$tmp119 nmedium cos0 	%argrw{"wrr"}
+	add		$tmp120 $tmp118 $tmp119 	%argrw{"wrr"}
+	div		$tmp114 $tmp117 $tmp120 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:45
+#     float alpha_p = rp(n1, n0, cos1, cos0) * rp(n1, n2, cos1, cos2); // rho_10 * rho_12 (p-polarized)
+	functioncall	$const11 190 	%line{45} %argrw{"r"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:4
+# }
+	mul		$tmp122 nfilm ___337_cos1 	%line{4} %argrw{"wrr"}
+	mul		$tmp123 ninternal ___337_cos2 	%argrw{"wrr"}
+	sub		$tmp124 $tmp122 $tmp123 	%argrw{"wrr"}
+	mul		$tmp125 nfilm ___337_cos1 	%argrw{"wrr"}
+	mul		$tmp126 ninternal ___337_cos2 	%argrw{"wrr"}
+	add		$tmp127 $tmp125 $tmp126 	%argrw{"wrr"}
+	div		$tmp121 $tmp124 $tmp127 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:45
+#     float alpha_p = rp(n1, n0, cos1, cos0) * rp(n1, n2, cos1, cos2); // rho_10 * rho_12 (p-polarized)
+	mul		___337_alpha_s $tmp114 $tmp121 	%line{45} %argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:46
+#      
+	functioncall	$const12 199 	%line{46} %argrw{"r"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:9
+# }
+	mul		$tmp129 nmedium ___337_cos1 	%line{9} %argrw{"wrr"}
+	mul		$tmp130 nfilm cos0 	%argrw{"wrr"}
+	sub		$tmp131 $tmp129 $tmp130 	%argrw{"wrr"}
+	mul		$tmp132 nfilm cos0 	%argrw{"wrr"}
+	mul		$tmp133 nmedium ___337_cos1 	%argrw{"wrr"}
+	add		$tmp134 $tmp132 $tmp133 	%argrw{"wrr"}
+	div		$tmp128 $tmp131 $tmp134 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:46
+#      
+	functioncall	$const12 207 	%line{46} %argrw{"r"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:9
+# }
+	mul		$tmp136 ninternal ___337_cos1 	%line{9} %argrw{"wrr"}
+	mul		$tmp137 nfilm ___337_cos2 	%argrw{"wrr"}
+	sub		$tmp138 $tmp136 $tmp137 	%argrw{"wrr"}
+	mul		$tmp139 nfilm ___337_cos2 	%argrw{"wrr"}
+	mul		$tmp140 ninternal ___337_cos1 	%argrw{"wrr"}
+	add		$tmp141 $tmp139 $tmp140 	%argrw{"wrr"}
+	div		$tmp135 $tmp138 $tmp141 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:46
+#      
+	mul		___337_alpha_p $tmp128 $tmp135 	%line{46} %argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:48
+#     float beta_p = tp(n0, n1, cos0, cos1) * tp(n1, n2, cos1, cos2); // tau_01 * tau_12 (p-polarized)
+	functioncall	$const13 215 	%line{48} %argrw{"r"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:14
+# }
+	mul		$tmp143 $const10 nmedium 	%line{14} %argrw{"wrr"}
+	mul		$tmp144 $tmp143 cos0 	%argrw{"wrr"}
+	mul		$tmp145 nmedium cos0 	%argrw{"wrr"}
+	mul		$tmp146 nfilm ___337_cos1 	%argrw{"wrr"}
+	add		$tmp147 $tmp145 $tmp146 	%argrw{"wrr"}
+	div		$tmp142 $tmp144 $tmp147 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:48
+#     float beta_p = tp(n0, n1, cos0, cos1) * tp(n1, n2, cos1, cos2); // tau_01 * tau_12 (p-polarized)
+	functioncall	$const13 222 	%line{48} %argrw{"r"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:14
+# }
+	mul		$tmp149 $const10 nfilm 	%line{14} %argrw{"wrr"}
+	mul		$tmp150 $tmp149 ___337_cos1 	%argrw{"wrr"}
+	mul		$tmp151 nfilm ___337_cos1 	%argrw{"wrr"}
+	mul		$tmp152 ninternal ___337_cos2 	%argrw{"wrr"}
+	add		$tmp153 $tmp151 $tmp152 	%argrw{"wrr"}
+	div		$tmp148 $tmp150 $tmp153 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:48
+#     float beta_p = tp(n0, n1, cos0, cos1) * tp(n1, n2, cos1, cos2); // tau_01 * tau_12 (p-polarized)
+	mul		___337_beta_s $tmp142 $tmp148 	%line{48} %argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:49
+#          
+	functioncall	$const14 230 	%line{49} %argrw{"r"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:19
+# }
+	mul		$tmp155 $const10 nmedium 	%line{19} %argrw{"wrr"}
+	mul		$tmp156 $tmp155 cos0 	%argrw{"wrr"}
+	mul		$tmp157 nmedium ___337_cos1 	%argrw{"wrr"}
+	mul		$tmp158 nfilm cos0 	%argrw{"wrr"}
+	add		$tmp159 $tmp157 $tmp158 	%argrw{"wrr"}
+	div		$tmp154 $tmp156 $tmp159 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:49
+#          
+	functioncall	$const14 237 	%line{49} %argrw{"r"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:19
+# }
+	mul		$tmp161 $const10 nfilm 	%line{19} %argrw{"wrr"}
+	mul		$tmp162 $tmp161 ___337_cos1 	%argrw{"wrr"}
+	mul		$tmp163 nfilm ___337_cos2 	%argrw{"wrr"}
+	mul		$tmp164 ninternal ___337_cos1 	%argrw{"wrr"}
+	add		$tmp165 $tmp163 $tmp164 	%argrw{"wrr"}
+	div		$tmp160 $tmp162 $tmp165 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:49
+#          
+	mul		___337_beta_p $tmp154 $tmp160 	%line{49} %argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:52
+#          
+	mul		$tmp166 $const10 ___337_PI 	%line{52} %argrw{"wrr"}
+	div		$tmp167 $tmp166 $const16 	%argrw{"wrr"}
+	mul		$tmp168 $const10 nfilm 	%argrw{"wrr"}
+	mul		$tmp169 $tmp168 thick 	%argrw{"wrr"}
+	mul		$tmp170 $tmp169 ___337_cos1 	%argrw{"wrr"}
+	mul		$tmp171 $tmp167 $tmp170 	%argrw{"wrr"}
+	add		___337_phi $tmp171 ___337_delta 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:55
+#     float tp = pow(beta_p, 2) / (pow(alpha_p, 2) - 2 * alpha_p * cos(phi) + 1);
+	pow		$tmp172 ___337_beta_s $const10 	%line{55} %argrw{"wrr"}
+	pow		$tmp173 ___337_alpha_s $const10 	%argrw{"wrr"}
+	mul		$tmp174 $const10 ___337_alpha_s 	%argrw{"wrr"}
+	cos		$tmp175 ___337_phi 	%argrw{"wr"}
+	mul		$tmp176 $tmp174 $tmp175 	%argrw{"wrr"}
+	sub		$tmp177 $tmp173 $tmp176 	%argrw{"wrr"}
+	add		$tmp178 $tmp177 $const5 	%argrw{"wrr"}
+	div		___337_ts $tmp172 $tmp178 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:56
+#      
+	pow		$tmp179 ___337_beta_p $const10 	%line{56} %argrw{"wrr"}
+	pow		$tmp180 ___337_alpha_p $const10 	%argrw{"wrr"}
+	mul		$tmp181 $const10 ___337_alpha_p 	%argrw{"wrr"}
+	cos		$tmp182 ___337_phi 	%argrw{"wr"}
+	mul		$tmp183 $tmp181 $tmp182 	%argrw{"wrr"}
+	sub		$tmp184 $tmp180 $tmp183 	%argrw{"wrr"}
+	add		$tmp185 $tmp184 $const5 	%argrw{"wrr"}
+	div		___337_tp $tmp179 $tmp185 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:59
+#      
+	mul		$tmp186 ninternal ___337_cos2 	%line{59} %argrw{"wrr"}
+	mul		$tmp187 nmedium cos0 	%argrw{"wrr"}
+	div		___337_beamRatio $tmp186 $tmp187 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:63
+#      
+	add		$tmp188 ___337_ts ___337_tp 	%line{63} %argrw{"wrr"}
+	mul		$tmp189 ___337_beamRatio $tmp188 	%argrw{"wrr"}
+	div		___337_t $tmp189 $const10 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:66
+# }
+	sub		green $const5 ___337_t 	%line{66} %argrw{"wrr"}
+	return
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:89
+#   
+	functioncall	$const8 397 	%line{89} %argrw{"r"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:26
+#      
+	assign		___337_PI $const9 	%line{26} %argrw{"wr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:29
+#     float d12 = (n1 > n2) ? 0 : PI;
+	gt		$tmp190 nfilm nmedium 	%line{29} %argrw{"wrr"}
+	if		$tmp190 274 275 	%argrw{"r"}
+	assign		___337_d10 $const1 	%argrw{"wr"}
+	assign		___337_d10 ___337_PI 	%argrw{"wr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:30
+#     float delta = d10 + d12;
+	gt		$tmp191 nfilm ninternal 	%line{30} %argrw{"wrr"}
+	if		$tmp191 278 279 	%argrw{"r"}
+	assign		___337_d12 $const1 	%argrw{"wr"}
+	assign		___337_d12 ___337_PI 	%argrw{"wr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:31
+#      
+	add		___337_delta ___337_d10 ___337_d12 	%line{31} %argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:34
+#     if (sin1 > 1) return 1.0; // total internal reflection
+	div		$tmp193 nmedium nfilm 	%line{34} %argrw{"wrr"}
+	pow		$tmp192 $tmp193 $const10 	%argrw{"wrr"}
+	pow		$tmp194 cos0 $const10 	%argrw{"wrr"}
+	sub		$tmp195 $const5 $tmp194 	%argrw{"wrr"}
+	mul		___337_sin1 $tmp192 $tmp195 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:35
+#     float cos1 = sqrt(1 - sin1);
+	gt		$tmp196 ___337_sin1 $const2 	%line{35} %argrw{"wrr"}
+	if		$tmp196 289 289 	%argrw{"r"}
+	assign		blue $const5 	%argrw{"wr"}
+	return
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:36
+#      
+	sub		$tmp197 $const5 ___337_sin1 	%line{36} %argrw{"wrr"}
+	sqrt		___337_cos1 $tmp197 	%argrw{"wr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:40
+#     if (sin2 > 1) return 1.0; // total internal reflection
+	div		$tmp199 nmedium ninternal 	%line{40} %argrw{"wrr"}
+	pow		$tmp198 $tmp199 $const10 	%argrw{"wrr"}
+	pow		$tmp200 cos0 $const10 	%argrw{"wrr"}
+	sub		$tmp201 $const5 $tmp200 	%argrw{"wrr"}
+	mul		___337_sin2 $tmp198 $tmp201 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:41
+#     float cos2 = sqrt(1 - sin2);
+	gt		$tmp202 ___337_sin2 $const2 	%line{41} %argrw{"wrr"}
+	if		$tmp202 300 300 	%argrw{"r"}
+	assign		blue $const5 	%argrw{"wr"}
+	return
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:42
+#      
+	sub		$tmp203 $const5 ___337_sin2 	%line{42} %argrw{"wrr"}
+	sqrt		___337_cos2 $tmp203 	%argrw{"wr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:45
+#     float alpha_p = rp(n1, n0, cos1, cos0) * rp(n1, n2, cos1, cos2); // rho_10 * rho_12 (p-polarized)
+	functioncall	$const11 310 	%line{45} %argrw{"r"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:4
+# }
+	mul		$tmp205 nfilm ___337_cos1 	%line{4} %argrw{"wrr"}
+	mul		$tmp206 nmedium cos0 	%argrw{"wrr"}
+	sub		$tmp207 $tmp205 $tmp206 	%argrw{"wrr"}
+	mul		$tmp208 nfilm ___337_cos1 	%argrw{"wrr"}
+	mul		$tmp209 nmedium cos0 	%argrw{"wrr"}
+	add		$tmp210 $tmp208 $tmp209 	%argrw{"wrr"}
+	div		$tmp204 $tmp207 $tmp210 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:45
+#     float alpha_p = rp(n1, n0, cos1, cos0) * rp(n1, n2, cos1, cos2); // rho_10 * rho_12 (p-polarized)
+	functioncall	$const11 318 	%line{45} %argrw{"r"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:4
+# }
+	mul		$tmp212 nfilm ___337_cos1 	%line{4} %argrw{"wrr"}
+	mul		$tmp213 ninternal ___337_cos2 	%argrw{"wrr"}
+	sub		$tmp214 $tmp212 $tmp213 	%argrw{"wrr"}
+	mul		$tmp215 nfilm ___337_cos1 	%argrw{"wrr"}
+	mul		$tmp216 ninternal ___337_cos2 	%argrw{"wrr"}
+	add		$tmp217 $tmp215 $tmp216 	%argrw{"wrr"}
+	div		$tmp211 $tmp214 $tmp217 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:45
+#     float alpha_p = rp(n1, n0, cos1, cos0) * rp(n1, n2, cos1, cos2); // rho_10 * rho_12 (p-polarized)
+	mul		___337_alpha_s $tmp204 $tmp211 	%line{45} %argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:46
+#      
+	functioncall	$const12 327 	%line{46} %argrw{"r"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:9
+# }
+	mul		$tmp219 nmedium ___337_cos1 	%line{9} %argrw{"wrr"}
+	mul		$tmp220 nfilm cos0 	%argrw{"wrr"}
+	sub		$tmp221 $tmp219 $tmp220 	%argrw{"wrr"}
+	mul		$tmp222 nfilm cos0 	%argrw{"wrr"}
+	mul		$tmp223 nmedium ___337_cos1 	%argrw{"wrr"}
+	add		$tmp224 $tmp222 $tmp223 	%argrw{"wrr"}
+	div		$tmp218 $tmp221 $tmp224 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:46
+#      
+	functioncall	$const12 335 	%line{46} %argrw{"r"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:9
+# }
+	mul		$tmp226 ninternal ___337_cos1 	%line{9} %argrw{"wrr"}
+	mul		$tmp227 nfilm ___337_cos2 	%argrw{"wrr"}
+	sub		$tmp228 $tmp226 $tmp227 	%argrw{"wrr"}
+	mul		$tmp229 nfilm ___337_cos2 	%argrw{"wrr"}
+	mul		$tmp230 ninternal ___337_cos1 	%argrw{"wrr"}
+	add		$tmp231 $tmp229 $tmp230 	%argrw{"wrr"}
+	div		$tmp225 $tmp228 $tmp231 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:46
+#      
+	mul		___337_alpha_p $tmp218 $tmp225 	%line{46} %argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:48
+#     float beta_p = tp(n0, n1, cos0, cos1) * tp(n1, n2, cos1, cos2); // tau_01 * tau_12 (p-polarized)
+	functioncall	$const13 343 	%line{48} %argrw{"r"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:14
+# }
+	mul		$tmp233 $const10 nmedium 	%line{14} %argrw{"wrr"}
+	mul		$tmp234 $tmp233 cos0 	%argrw{"wrr"}
+	mul		$tmp235 nmedium cos0 	%argrw{"wrr"}
+	mul		$tmp236 nfilm ___337_cos1 	%argrw{"wrr"}
+	add		$tmp237 $tmp235 $tmp236 	%argrw{"wrr"}
+	div		$tmp232 $tmp234 $tmp237 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:48
+#     float beta_p = tp(n0, n1, cos0, cos1) * tp(n1, n2, cos1, cos2); // tau_01 * tau_12 (p-polarized)
+	functioncall	$const13 350 	%line{48} %argrw{"r"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:14
+# }
+	mul		$tmp239 $const10 nfilm 	%line{14} %argrw{"wrr"}
+	mul		$tmp240 $tmp239 ___337_cos1 	%argrw{"wrr"}
+	mul		$tmp241 nfilm ___337_cos1 	%argrw{"wrr"}
+	mul		$tmp242 ninternal ___337_cos2 	%argrw{"wrr"}
+	add		$tmp243 $tmp241 $tmp242 	%argrw{"wrr"}
+	div		$tmp238 $tmp240 $tmp243 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:48
+#     float beta_p = tp(n0, n1, cos0, cos1) * tp(n1, n2, cos1, cos2); // tau_01 * tau_12 (p-polarized)
+	mul		___337_beta_s $tmp232 $tmp238 	%line{48} %argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:49
+#          
+	functioncall	$const14 358 	%line{49} %argrw{"r"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:19
+# }
+	mul		$tmp245 $const10 nmedium 	%line{19} %argrw{"wrr"}
+	mul		$tmp246 $tmp245 cos0 	%argrw{"wrr"}
+	mul		$tmp247 nmedium ___337_cos1 	%argrw{"wrr"}
+	mul		$tmp248 nfilm cos0 	%argrw{"wrr"}
+	add		$tmp249 $tmp247 $tmp248 	%argrw{"wrr"}
+	div		$tmp244 $tmp246 $tmp249 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:49
+#          
+	functioncall	$const14 365 	%line{49} %argrw{"r"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:19
+# }
+	mul		$tmp251 $const10 nfilm 	%line{19} %argrw{"wrr"}
+	mul		$tmp252 $tmp251 ___337_cos1 	%argrw{"wrr"}
+	mul		$tmp253 nfilm ___337_cos2 	%argrw{"wrr"}
+	mul		$tmp254 ninternal ___337_cos1 	%argrw{"wrr"}
+	add		$tmp255 $tmp253 $tmp254 	%argrw{"wrr"}
+	div		$tmp250 $tmp252 $tmp255 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:49
+#          
+	mul		___337_beta_p $tmp244 $tmp250 	%line{49} %argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:52
+#          
+	mul		$tmp256 $const10 ___337_PI 	%line{52} %argrw{"wrr"}
+	div		$tmp257 $tmp256 $const18 	%argrw{"wrr"}
+	mul		$tmp258 $const10 nfilm 	%argrw{"wrr"}
+	mul		$tmp259 $tmp258 thick 	%argrw{"wrr"}
+	mul		$tmp260 $tmp259 ___337_cos1 	%argrw{"wrr"}
+	mul		$tmp261 $tmp257 $tmp260 	%argrw{"wrr"}
+	add		___337_phi $tmp261 ___337_delta 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:55
+#     float tp = pow(beta_p, 2) / (pow(alpha_p, 2) - 2 * alpha_p * cos(phi) + 1);
+	pow		$tmp262 ___337_beta_s $const10 	%line{55} %argrw{"wrr"}
+	pow		$tmp263 ___337_alpha_s $const10 	%argrw{"wrr"}
+	mul		$tmp264 $const10 ___337_alpha_s 	%argrw{"wrr"}
+	cos		$tmp265 ___337_phi 	%argrw{"wr"}
+	mul		$tmp266 $tmp264 $tmp265 	%argrw{"wrr"}
+	sub		$tmp267 $tmp263 $tmp266 	%argrw{"wrr"}
+	add		$tmp268 $tmp267 $const5 	%argrw{"wrr"}
+	div		___337_ts $tmp262 $tmp268 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:56
+#      
+	pow		$tmp269 ___337_beta_p $const10 	%line{56} %argrw{"wrr"}
+	pow		$tmp270 ___337_alpha_p $const10 	%argrw{"wrr"}
+	mul		$tmp271 $const10 ___337_alpha_p 	%argrw{"wrr"}
+	cos		$tmp272 ___337_phi 	%argrw{"wr"}
+	mul		$tmp273 $tmp271 $tmp272 	%argrw{"wrr"}
+	sub		$tmp274 $tmp270 $tmp273 	%argrw{"wrr"}
+	add		$tmp275 $tmp274 $const5 	%argrw{"wrr"}
+	div		___337_tp $tmp269 $tmp275 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:59
+#      
+	mul		$tmp276 ninternal ___337_cos2 	%line{59} %argrw{"wrr"}
+	mul		$tmp277 nmedium cos0 	%argrw{"wrr"}
+	div		___337_beamRatio $tmp276 $tmp277 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:63
+#      
+	add		$tmp278 ___337_ts ___337_tp 	%line{63} %argrw{"wrr"}
+	mul		$tmp279 ___337_beamRatio $tmp278 	%argrw{"wrr"}
+	div		___337_t $tmp279 $const10 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:66
+# }
+	sub		blue $const5 ___337_t 	%line{66} %argrw{"wrr"}
+	return
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\iridescence.osl:91
+# }
+	color		reflColor red green blue 	%line{91} %argrw{"wrrr"}
+	end
