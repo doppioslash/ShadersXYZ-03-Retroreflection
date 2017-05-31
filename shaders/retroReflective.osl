@@ -1,0 +1,22 @@
+#include "stdosl.h"
+
+shader retroReflectiveShader 
+(
+	color Color = 0.8,
+	float Roughness = 0.2,
+	normal Normal = N,
+	vector lightDir = 0.0,
+	vector viewDir = 0.0,
+	vector pos = 0.0,
+	output closure color BSDF = 0
+)
+{
+ 	normal Nrm = normalize(N);
+	float nDotL  = dot(N,lightDir);
+	vector midDir = viewDir - pos;
+	midDir = normalize(midDir);
+	vector midDir1 = (Nrm + midDir ) / 2;
+	BSDF = Color * 2 * microfacet_ggx(midDir, Roughness);
+	
+
+}

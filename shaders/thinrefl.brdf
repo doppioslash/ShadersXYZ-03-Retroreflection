@@ -1,0 +1,89 @@
+analytic
+
+# Blinn Phong based on halfway-vector with single-layer thin
+# film wave interference effects via a Fresnel film coating.
+
+::begin parameters
+float thickness 0 3000 250  # Thin film thickness (in nm)
+float externalIOR 0.2 3 1     # External (air) refractive index
+float thinfilmIOR 0.2 3 1.5   # Layer (thin film) refractive index
+float internalIOR 0.2 3 1.25  # Internal (object) refractive index
+float n 1 1000 100          # Blinn-Phong microfacet exponent
+::end parameters
+
+::begin shader
+
+const float PI = 3.14159265f;
+
+/* Amplitude reflection coefficient (s-polarized) */
+float rs(float n1, float n2, float cosI, float cosT)
+{
+    return (n1 * cosI - n2 * cosT) / (n1 * cosI + n2 * cosT);
+}
+
+/* Amplitude reflection coefficient (p-polarized) */
+float rp(float n1, float n2, float cosI, float cosT)
+{
+    return (n2 * cosI - n1 * cosT) / (n1 * cosT + n2 * cosI);
+}
+
+/* Amplitude transmission coefficient (s-polarized) */
+float ts(float n1, float n2, float cosI, float cosT)
+{
+    return 2 * n1 * cosI / (n1 * cosI + n2 * cosT);
+}
+
+/* Amplitude transmission coefficient (p-polarized) */
+float tp(float n1, float n2, float cosI, float cosT)
+{
+    return 2 * n1 * cosI / (n1 * cosT + n2 * cosI);
+}
+
+/* Pass the incident cosine. */
+vec3 FresnelCoating(float cos0)
+{
+    /* Precompute the reflection phase changes (depends on IOR) */
+    float delta10 = (thinfilmIOR < externalIOR) ? PI : 0.0f;
+    float delta12 = (thinfilmIOR < internalIOR) ? PI : 0.0f;
+    float delta = delta10 + delta12;
+
+    /* Calculate the thin film layer (and transmitted) angle cosines. */
+    float sin1 = pow(externalIOR / thinfilmIOR, 2) * (1 - pow(cos0, 2));
+    float sin2 = pow(externalIOR / internalIOR, 2) * (1 - pow(cos0, 2));
+    if ((sin1 > 1) || (sin2 > 1)) return vec3(1); /* Account for TIR. */
+    float cos1 = sqrt(1 - sin1), cos2 = sqrt(1 - sin2);
+
+    /* Calculate the interference phase change. */
+    vec3 phi = vec3(2 * thinfilmIOR * thickness * cos1);
+    phi *= 2 * PI / vec3(650, 510, 475);
+    phi += delta;
+
+    /* Obtain the various Fresnel amplitude coefficients. */
+    float alpha_s = rs(thinfilmIOR, externalIOR, cos1, cos0)
+                  * rs(thinfilmIOR, internalIOR, cos1, cos2);
+    float alpha_p = rp(thinfilmIOR, externalIOR, cos1, cos0)
+                  * rp(thinfilmIOR, internalIOR, cos1, cos2);
+    float beta_s  = ts(externalIOR, thinfilmIOR, cos0, cos1)
+                  * ts(thinfilmIOR, internalIOR, cos1, cos2);
+    float beta_p  = tp(externalIOR, thinfilmIOR, cos0, cos1)
+                  * tp(thinfilmIOR, internalIOR, cos1, cos2);
+
+    /* Calculate the s- and p-polarized intensity transmission coefficient. */
+    vec3 ts = pow(beta_s, 2) / (pow(alpha_s, 2) - 2 * alpha_s * cos(phi) + 1);
+    vec3 tp = pow(beta_p, 2) / (pow(alpha_p, 2) - 2 * alpha_p * cos(phi) + 1);
+
+    /* Calculate the transmitted power ratio for medium change. */
+    float beamRatio = (internalIOR * cos2) / (externalIOR * cos0);
+
+    /* Calculate the average reflectance. */
+    return 1 - beamRatio * (ts + tp) * 0.5f;
+}
+
+vec3 BRDF(vec3 L, vec3 V, vec3 N, vec3 X, vec3 Y)
+{
+    vec3 H = normalize(L + V);
+    float val = pow(max(0, dot(N, H)), n);
+    return vec3(val) * FresnelCoating(dot(V, H));
+}
+
+::end shader

@@ -1,6 +1,6 @@
 OpenShadingLanguage 1.00
 # Compiled by oslc 1.7.5
-# options: -o C:\Users\claud\AppData\Local\Temp\tmp523_rvhi.oso -IC:\Program Files\Blender Foundation\Blender\2.78\scripts\addons\cycles\shader
+# options: -o C:\Users\claud\Documents\GitHub\ShadersXYZ-03-Retroreflection\blender-scene\..\shaders\iridescence.oso -IC:\Program Files\Blender Foundation\Blender\2.78\scripts\addons\cycles\shader
 surface irridescence	%meta{string,description,"Thin film coating shader. Use as reflection color for the material, with Fresnel for the material OFF (this texture computes its own Fresnel)"} 
 param	float	thicknessMin	250		%meta{string,description,"Minimum thickness of the film, in nm"}  %read{10,10} %write{2147483647,-1}
 param	float	thicknessMax	400		%meta{string,description,"Maximum thickness of the film, in nm"}  %read{11,11} %write{2147483647,-1}

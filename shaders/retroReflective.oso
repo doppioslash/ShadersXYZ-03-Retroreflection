@@ -1,0 +1,48 @@
+OpenShadingLanguage 1.00
+# Compiled by oslc 1.7.5
+# options: -o C:\Users\claud\AppData\Local\Temp\tmpx_6kg6vt.oso -IC:\Program Files\Blender Foundation\Blender\2.78\scripts\addons\cycles\shader
+shader retroReflectiveShader
+param	color	Color	0.80000001 0.80000001 0.80000001		%read{8,8} %write{2147483647,-1}
+param	float	Roughness	0.2		%read{7,7} %write{2147483647,-1}
+param	normal	Normal	0 0 0		%read{2147483647,-1} %write{0,0} %initexpr
+param	vector	lightDir	0 0 0		%read{2,2} %write{2147483647,-1}
+param	vector	viewDir	0 0 0		%read{3,3} %write{2147483647,-1}
+param	vector	pos	0 0 0		%read{3,3} %write{2147483647,-1}
+oparam	closure color	BSDF			%read{2147483647,-1} %write{9,9}
+global	normal	N	%read{0,2} %write{2147483647,-1}
+local	normal	Nrm	%read{5,5} %write{1,1}
+local	float	nDotL	%read{2147483647,-1} %write{2,2}
+local	vector	midDir	%read{4,7} %write{3,4}
+local	vector	midDir1	%read{2147483647,-1} %write{6,6}
+temp	normal	$tmp1	%read{6,6} %write{5,5}
+const	float	$const2	2		%read{6,8} %write{2147483647,-1}
+temp	closure color	$tmp2	%read{9,9} %write{7,7}
+const	string	$const3	"microfacet_ggx"		%read{7,7} %write{2147483647,-1}
+temp	color	$tmp3	%read{9,9} %write{8,8}
+code Normal
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\retroReflective.osl:8
+# 	vector lightDir = 0.0,
+	assign		Normal N 	%filename{"C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\retroReflective.osl"} %line{8} %argrw{"wr"}
+code ___main___
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\retroReflective.osl:15
+# 	float nDotL  = dot(N,lightDir);
+	normalize	Nrm N 	%filename{"C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\retroReflective.osl"} %line{15} %argrw{"wr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\retroReflective.osl:16
+# 	vector midDir = viewDir - pos;
+	dot		nDotL N lightDir 	%line{16} %argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\retroReflective.osl:17
+# 	midDir = normalize(midDir);
+	sub		midDir viewDir pos 	%line{17} %argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\retroReflective.osl:18
+# 	vector midDir1 = (Nrm + midDir ) / 2;
+	normalize	midDir midDir 	%line{18} %argrw{"wr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\retroReflective.osl:19
+# 	BSDF = Color * 2 * microfacet_ggx(midDir, Roughness);
+	add		$tmp1 Nrm midDir 	%line{19} %argrw{"wrr"}
+	div		midDir1 $tmp1 $const2 	%argrw{"wrr"}
+# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\retroReflective.osl:20
+# 	
+	closure		$tmp2 $const3 midDir Roughness 	%line{20} %argrw{"wrrr"}
+	mul		$tmp3 Color $const2 	%argrw{"wrr"}
+	mul		BSDF $tmp2 $tmp3 	%argrw{"wrr"}
+	end

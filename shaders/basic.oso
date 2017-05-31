@@ -1,37 +1,36 @@
 OpenShadingLanguage 1.00
 # Compiled by oslc 1.7.5
-# options: -o C:\Users\claud\Documents\GitHub\ShadersXYZ-03-Retroreflection\blender-scene\..\shaders\basic.oso -IC:\Program Files\Blender Foundation\Blender\2.78\scripts\addons\cycles\shader
-shader basicShading
-param	color	baseColor	1 0 0		%read{7,7} %write{2147483647,-1}
-param	color	roughness	1 0 0		%read{2147483647,-1} %write{2147483647,-1}
-param	normal	NormalMap	0 0 0		%read{1,3} %write{2147483647,-1}
-oparam	closure color	RetroBSDF			%read{2147483647,-1} %write{0,7} %initexpr
-global	normal	N	%read{0,5} %write{4,4}
-local	normal	Nrm	%read{6,6} %write{5,5}
-const	string	$const1	"diffuse"		%read{0,6} %write{2147483647,-1}
-const	int	$const2	0		%read{1,1} %write{2147483647,-1}
-temp	float	$tmp1	%read{4,4} %write{1,1}
-const	int	$const3	1		%read{2,2} %write{2147483647,-1}
-temp	float	$tmp2	%read{4,4} %write{2,2}
-const	int	$const4	2		%read{3,3} %write{2147483647,-1}
-temp	float	$tmp3	%read{4,4} %write{3,3}
-temp	closure color	$tmp4	%read{7,7} %write{6,6}
-code RetroBSDF
-# C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\basic.osl:9
-# )
-	closure		RetroBSDF $const1 N 	%filename{"C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\basic.osl"} %line{9} %argrw{"wrr"}
+# options: -o C:\Users\claud\AppData\Local\Temp\tmp56w7ubhh.oso -IC:\Program Files\Blender Foundation\Blender\2.78\scripts\addons\cycles\shader
+shader glossyIridescentShader
+param	color	specColor	1 0 0		%read{6,6} %write{2147483647,-1}
+param	float	Roughness	0		%read{5,5} %write{2147483647,-1}
+param	normal	NormalMap	0 0 0		%read{0,2} %write{2147483647,-1}
+oparam	closure color	RetroBSDF			%read{2147483647,-1} %write{7,7}
+global	normal	N	%read{4,4} %write{3,3}
+local	normal	Nrm	%read{5,5} %write{4,4}
+const	int	$const1	0		%read{0,0} %write{2147483647,-1}
+temp	float	$tmp1	%read{3,3} %write{0,0}
+const	int	$const2	1		%read{1,1} %write{2147483647,-1}
+temp	float	$tmp2	%read{3,3} %write{1,1}
+const	int	$const3	2		%read{2,2} %write{2147483647,-1}
+temp	float	$tmp3	%read{3,3} %write{2,2}
+temp	closure color	$tmp4	%read{7,7} %write{5,5}
+const	string	$const4	"microfacet_ggx"		%read{5,5} %write{2147483647,-1}
+const	float	$const5	1		%read{6,6} %write{2147483647,-1}
+temp	color	$tmp5	%read{7,7} %write{6,6}
 code ___main___
 # C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\basic.osl:13
 # 	normal Nrm = normalize(N);
-	compref		$tmp1 NormalMap $const2 	%filename{"C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\basic.osl"} %line{13} %argrw{"wrr"}
-	compref		$tmp2 NormalMap $const3 	%argrw{"wrr"}
-	compref		$tmp3 NormalMap $const4 	%argrw{"wrr"}
+	compref		$tmp1 NormalMap $const1 	%filename{"C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\basic.osl"} %line{13} %argrw{"wrr"}
+	compref		$tmp2 NormalMap $const2 	%argrw{"wrr"}
+	compref		$tmp3 NormalMap $const3 	%argrw{"wrr"}
 	normal		N $tmp1 $tmp2 $tmp3 	%argrw{"wrrr"}
 # C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\basic.osl:14
-# 	RetroBSDF = baseColor * diffuse(Nrm);
+# 	RetroBSDF = (1.0 * specColor) * microfacet_ggx(Nrm, Roughness);
 	normalize	Nrm N 	%line{14} %argrw{"wr"}
 # C:\\Users\\claud\\Documents\\GitHub\\ShadersXYZ-03-Retroreflection\\blender-scene\\..\\shaders\\basic.osl:15
 # }
-	closure		$tmp4 $const1 Nrm 	%line{15} %argrw{"wrr"}
-	mul		RetroBSDF $tmp4 baseColor 	%argrw{"wrr"}
+	closure		$tmp4 $const4 Nrm Roughness 	%line{15} %argrw{"wrrr"}
+	mul		$tmp5 $const5 specColor 	%argrw{"wrr"}
+	mul		RetroBSDF $tmp4 $tmp5 	%argrw{"wrr"}
 	end
